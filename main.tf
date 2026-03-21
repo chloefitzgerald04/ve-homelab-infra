@@ -19,7 +19,7 @@ terraform {
     }
     bpg = {
       source = "bpg/proxmox"
-      version = "0.86.0"
+      version = "0.98.1"
     }
   }
 }
