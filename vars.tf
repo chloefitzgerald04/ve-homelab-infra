@@ -2,7 +2,7 @@ variable "ssh_key" {
   default = "your_public_ssh_key_here"
 }
 variable "proxmox_host" {
-    default = "SA-MS01"
+    default = "pve3"
 }
 variable "iso" {
     default = "NAS:iso/archlinux-2024.06.01-x86_64.iso"
@@ -18,7 +18,7 @@ variable "mem" {
 }
 
 variable "api_url" {
-    default = "https://10.0.10.200:8006/api2/json"
+    default = "https://10.0.0.101:8006/api2/json"
 }
 variable "token_secret" {
     default = "123abc"
@@ -53,4 +53,10 @@ variable "imported_disk" {
     default = {}
 }
 
+variable "flatcar_vms" {
+    default = {}
+}
 
+variable "default_flatcar" {
+    default = {}
+}

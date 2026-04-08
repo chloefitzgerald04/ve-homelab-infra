@@ -1,5 +1,5 @@
 default_templates = {
-         "node"                                                 = "pve-01"
+         "node"                                                 = "pve3"
          "os"                                                   = "l26"
          "machine"                                              = "pc" # pc (i440FX) or q35
          "description"                                          = "Default config for vm"
@@ -32,13 +32,13 @@ default_templates = {
          # }
          "bios"                                                 = "seabios" # or ovmf
          "efi-disk" = { # Required if bios set to ovmf
-            "datastore_id"                                      = "local-lvm"
+            "datastore_id"                                      = "Ceph"
          }
          "rebootafterupdate"                                    = "true"
          "tpm" = {
             "enabled"                                           = false
             "version"                                           = "v2.0"
-            "datastore_id"                                      = "local-lvm"
+            "datastore_id"                                      = "Ceph"
          }
          "stop_on_destroy"                                      = true
          "startup"                                              = false
@@ -62,7 +62,7 @@ default_templates = {
 custom_templates = {
      "flatcar-template" = {
          "name" = "flatcar-template"
-         "node" = "SA-MS01"
+         "node" = "pve3"
          "cpu" = {
             "vcpus" = 2
          }
@@ -71,13 +71,13 @@ custom_templates = {
          }
          # "import" = {
          #       "import_from" = "https://stable.release.flatcar-linux.net/amd64-usr/current/flatcar_production_proxmoxve_image.img"
-         #       "datastore_id" = "local-lvm"
+         #       "datastore_id" = "Ceph"
          # }
          "import" = {
             "0" = {
                "name" = "flatcar-proxmox2.qcow2"
                "size" = "20"
-               "datastore" = "local-lvm"
+               "datastore" = "Ceph"
                "interface" = "scsi0"
             }
          }

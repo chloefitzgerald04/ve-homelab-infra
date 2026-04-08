@@ -1,5 +1,5 @@
 default_vm = {
-         "node"                                                 = "pve-01"
+         "node"                                                 = "pve3"
          "os"                                                   = "l26"
          "machine"                                              = "pc" # pc (i440FX) or q35
          "description"                                          = "Default config for vm"
@@ -26,19 +26,19 @@ default_vm = {
          # "scsi" = {
          #    "0" = {
          #        "size"                                          = 32
-         #        "datastore_id"                                  = "local-lvm"
+         #        "datastore_id"                                  = "Ceph"
          #        "discard"                                       = "on"
          #    }
          # }
          "bios"                                                 = "seabios" # or ovmf
          "efi-disk" = { # Required if bios set to ovmf
-            "datastore_id"                                      = "local-lvm"
+            "datastore_id"                                      = "Ceph"
          }
          "rebootafterupdate"                                    = "true"
          "tpm" = {
             "enabled"                                           = false
             "version"                                           = "v2.0"
-            "datastore_id"                                      = "local-lvm"
+            "datastore_id"                                      = "Ceph"
          }
          "stop_on_destroy"                                      = true
          "startup"                                              = false
@@ -51,7 +51,7 @@ default_vm = {
          }
          "network_devices" = {
             "0" = {
-                "bridge" = "vmbr0"
+                "bridge" = "vmbr2"
                 "model" = "virtio"
                 "vlan_id" = 0
             }
@@ -64,7 +64,7 @@ iso_vms= {
      "VM1" = {
          "disabled" = true
          "name" = "01"
-         "node" = "SA-MS01"
+         "node" = "pve3"
          "cpu" = {
             "vcpus" = 2
          }
@@ -95,7 +95,8 @@ iso_vms= {
      }
      "flatcar-template2" = {
          "name" = "flatcar-template2"
-         "node" = "SA-MS01"
+         "node" = "pve3"
+         "disabled" = true
          "cpu" = {
             "vcpus" = 2
          }

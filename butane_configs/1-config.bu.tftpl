@@ -10,7 +10,7 @@ storage:
     - path: /etc/hostname
       mode: 0644
       contents:
-        inline: "cf-pve-cl-01-flatcar-${vm_count_index + 1}"
+        inline: "${vm_name}"
 
     - path: /opt/bin/docker-compose
       contents:
@@ -25,7 +25,7 @@ storage:
           [Match]
           Name=eth0
           [Network]
-          Address=10.0.10.${221 + vm_count_index}/24
+          Address=10.0.10.${221 + vm_count_index}/23
           Gateway=10.0.10.1
           DNS=10.0.10.1
 
@@ -107,7 +107,7 @@ systemd:
           --network host \
           --user 0:0 \
           -v /var/run/docker.sock:/var/run/docker.sock:ro \
-          -e ZBX_HOSTNAME="cf-pve-cl-01-flatcar-${vm_count_index + 1}" \
+          -e ZBX_HOSTNAME="${vm_name}" \
           -e ZBX_SERVER_HOST="10.0.10.208" \
           zabbix/zabbix-agent2:latest
         ExecStop=/usr/bin/docker stop zabbix-agent

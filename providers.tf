@@ -7,14 +7,14 @@ provider "telmate" {
 }
 
 
-# provider "bpg" {
-#   endpoint = "https://10.0.0.101:8006"
-#   api_token = "${var.token_id}=${var.token_secret}"
-#   insecure = true
-# }
-
 provider "bpg" {
-  endpoint = "https://10.0.10.200:8006"
+  endpoint = "https://10.0.0.101:8006"
   api_token = "${var.token_id}=${var.token_secret}"
-  insecure = true
-}
+  insecure = true 
+  }
+
+#provider "bpg" {
+#  endpoint = "https://10.0.10.200:8006"
+#  api_token = "${var.token_id}=${var.token_secret}"
+#  insecure = true
+#}

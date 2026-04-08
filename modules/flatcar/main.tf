@@ -2,86 +2,101 @@ terraform {
   required_providers {
     telmate = {
       source  = "telmate/proxmox"
-      version = "3.0.2-rc05"
+      version = "3.0.2-rc07"
     }
     ct = {
       source  = "poseidon/ct"
-      version = "0.12.0"
+      version = "0.14.0"
     }
-
-    # null = {
-    #   source = "hashicorp/null"
-    #   version = "3.2.1"
-    # }
   }
+}
+
+locals {
+  vm_index = { for idx, key in keys(var.flatcar_vms) : key => idx }
 }
 
 resource "proxmox_cloud_init_disk" "ci" {
   provider = telmate
-  count     = var.vm_count # just want 1 for now, set to 0 and apply to destroy VM, or more than 1 to increase amount of vms
-  name      = var.vm_count > 1 ? "cf-pve-cl-01-flatcar-${count.index + 1}" : "cf-pve-cl-01-flatcar"
-  pve_node  = var.target_node
-  storage   = "NAS"
+  for_each = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
+  name      = "cf-pve-cl-02-flatcar-${local.vm_index[each.key] + 1}"
+  pve_node  = each.value.node
+  storage   = "temp"
 
   meta_data = yamlencode({
-    instance_id    = sha1(var.vm_count > 1 ? "cf-pve-cl-01-flatcar-${count.index + 1}" : "cf-pve-cl-01-flatcar")
-    local-hostname = var.vm_count > 1 ? "cf-pve-cl-01-flatcar-${count.index + 1}" : "cf-pve-cl-01-flatcar"
+    instance_id    = sha1("cf-pve-cl-02-flatcar-${local.vm_index[each.key] + 1}")
+    local-hostname = "cf-pve-cl-02-flatcar-${local.vm_index[each.key] + 1}"
   })
 
-  user_data = data.ct_config.ignition_json[count.index].rendered
-
+  user_data = data.ct_config.ignition_json[each.key].rendered
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
 
-resource "proxmox_vm_qemu" "test_server" {
-  provider = telmate
-  count       = var.vm_count
-  name        = var.vm_count > 1 ? "cf-pve-cl-01-flatcar-${count.index + 1}" : "cf-pve-cl-01-flatcar"
-  target_node = var.target_node
-  desc = "data:application/vnd.coreos.ignition+json;charset=UTF-8;base64,${base64encode(data.ct_config.ignition_json[count.index].rendered)}"
+resource "proxmox_vm_qemu" "flatcar_vm" {
+  provider                      = telmate
+  clone_id                      = var.template_id.id["flatcar-template"]
+  full_clone                    = true
+  clone_wait                    = 0
+  for_each                      = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
 
-  agent = 1
-  define_connection_info = false 
-  bios = "seabios" 
-  os_type = "host"
+  automatic_reboot              = try(each.value.reboot_after_update, var.default_flatcar.reboot_after_update, null)
+  automatic_reboot_severity     = try(each.value.automatic_reboot_severity, var.default_flatcar.automatic_reboot_severity, null)
+
+  startup_shutdown {
+    order = -1
+    startup_delay = -1
+    shutdown_timeout = -1
+  }
+  name                          = each.value.vm_name
+  target_node                   = try(each.value.node, var.default_flatcar.node, null)
+  #description                   = "data:application/vnd.coreos.ignition+json;charset=UTF-8;base64,${base64encode(data.ct_config.ignition_json[each.key].rendered)}"
+
+  agent                         = 1
+  define_connection_info        = false 
+  bios                          = "seabios" 
+  os_type                       = "host"
+  boot                          = try(each.value.boot_order, var.default_flatcar.boot_order, null)
 
   cpu   {
-    cores = var.cores
-    type     = var.cpu
+    cores         = try(each.value.cpu.vpus, var.default_flatcar.cpu.vpus, 2)
+    type          = try(each.value.cpu.type, var.default_flatcar.cpu.type, "host")
   }
-  memory  = var.memory
-  onboot  = true
-  scsihw  = "virtio-scsi-single"
+  memory                        = try(each.value.memory, var.default_flatcar.memory, 4096)
+  start_at_node_boot            = try(each.value.start_on_boot, var.default_flatcar.start_on_boot,true)
+  scsihw                        = "virtio-scsi-single"
 
-  clone      = var.template_name
-  full_clone = false
-  clone_wait = 0
-
-    disks {
-        scsi {
-            scsi0 {
-                disk {
-                    discard            = true
-                    emulatessd         = true
-                    iothread           = true
-                    size               = 32
-                    storage            = "Ceph"
-                }
-            }
-        }
-        ide {
-            ide3 {
-                cdrom  {
-                    iso = "${proxmox_cloud_init_disk.ci[count.index].id}"
-                 }
-            }
-        }
-    }
+ 
+  disks {
+      scsi {
+          scsi0 {
+              disk {
+                  discard            = true
+                  emulatessd         = true
+                  iothread           = true
+                  size               = try(each.value.disk_size, var.default_flatcar.disk_size, 32)
+                  storage            = try(each.value.disk_datastore, var.default_flatcar.disk_datastore, "Ceph")
+              }
+          }
+      }
+      ide {
+          ide3 {
+              cdrom  {
+                  iso = "${proxmox_cloud_init_disk.ci[each.key].id}"
+               }
+          }
+      }
+  }
 
   network {
     id = 0
-    model  = "virtio"
-    bridge = var.network_bridge
-    tag    = var.vlan
+    model     = try(each.value.network.model, var.default_flatcar.network.model, "virtio")
+    bridge    = try(each.value.network.bridge, var.default_flatcar.network.bridge, null)
+    tag       = try(each.value.network.vlan, var.default_flatcar.network.vlan, null)
+    macaddr   = try(each.value.network.macaddr, null)
+    firewall  = try(each.value.network.firewall, each.value.network.firewall, null)
+    rate      = try(each.value.network.rate, each.value.network.rate, null)
+    link_down = try(each.value.network.link_down, each.value.network.link_down, null)
   }
 
 }
@@ -89,33 +104,24 @@ resource "proxmox_vm_qemu" "test_server" {
 
 
 data "ct_config" "ignition_json" {
-  count   = var.vm_count
-  content = templatefile("./modules/flatcar/${count.index + 1}-${var.butane_conf}", {
-    "vm_id"          = var.vm_count > 1 ? var.vm_id + count.index : var.vm_id
-    "vm_name"        = var.vm_count > 1 ? "${var.name}-${count.index + 1}" : var.name
-    "vm_count"       = var.vm_count,
-    "vm_count_index" = count.index,
-    "share_password" = var.share_password,
-    "docker-compose-template" = var.docker-compose-template,
+  for_each = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
+  content = templatefile(each.value.config_file, {
+    "vm_name"        = each.value.vm_name
+    "vm_count"       = local.vm_index[each.key],
+    "vm_count_index" = local.vm_index[each.key],
+    "share_password" = "test",
   })
   strict       = false
   pretty_print = true
-
-  snippets = [
-    for snippet in var.butane_conf_snippets : templatefile("${count.index + 1}-${var.butane_conf}", {
-      "vm_id"          = var.vm_count > 1 ? var.vm_id + count.index : var.vm_id
-      "vm_name"        = var.vm_count > 1 ? "${var.name}-${count.index + 1}" : var.name
-      "vm_count"       = var.vm_count,
-      "share_password" = var.share_password,
-      "vm_count_index" = count.index,
-    })
-  ]
 }
 
 
 resource "null_resource" "node_replace_trigger" {
-  count   = var.vm_count
+  for_each = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
   triggers = {
-    "ignition" = "${data.ct_config.ignition_json[count.index].rendered}"
+    "ignition" = data.ct_config.ignition_json[each.key].rendered
+  }
+  lifecycle {
+    ignore_changes = [triggers]
   }
 }
