@@ -19,7 +19,8 @@ jobs:
 
     steps:
         # Connects runner to network
-        - run: |
+        - name: Setup WireGuard
+          run: |
               sudo apt install resolvconf wireguard
               echo "${{ secrets.WG_CONFIG }}" > wg.conf
               sudo chmod 600 wg.conf
@@ -32,17 +33,21 @@ jobs:
           uses: hashicorp/setup-terraform@v2
           with:
             terraform_version: "1.13.1"
-    
+
+        - name: Generate Backend Config
+          run: |
+            cat > backend.hcl << EOF
+            bucket = "${{ vars.BUCKET }}"
+            key    = "${{ vars.KEY }}"
+            region = "${{ vars.REGION }}"
+            EOF
      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
         - name: Terraform Init
           id: init
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            REGION: ${{ vars.REGION }}
-            BUCKET: ${{ vars.BUCKET }}
-            KEY: ${{ vars.KEY }}
-          run: terraform init --backend-config="access_key=$AWS_ACCESS_KEY_ID" --backend-config="secret_key=$AWS_SECRET_ACCESS_KEY" --backend-config="region=$REGION" --backend-config="bucket=$BUCKET" --backend-config="key=$KEY"
+          run: terraform init -backend-config=backend.hcl
     
     
         # Run a terraform validate
