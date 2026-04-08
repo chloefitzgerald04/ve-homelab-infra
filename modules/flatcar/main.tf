@@ -109,7 +109,7 @@ data "ct_config" "ignition_json" {
     "vm_name"        = each.value.vm_name
     "vm_count"       = local.vm_index[each.key],
     "vm_count_index" = local.vm_index[each.key],
-    "share_password" = "test",
+    "share_password" = var.share_password,
   })
   strict       = false
   pretty_print = true
