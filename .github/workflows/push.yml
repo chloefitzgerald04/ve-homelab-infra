@@ -73,7 +73,9 @@ jobs:
           id: plan
           env:
             TF_VAR_token_id: ${{ secrets.TF_VAR_TOKEN_ID }}
-            TF_VAR_token_secret: ${{ secrets.TF_VAR_TOKEN_SECRET }}           
+            TF_VAR_token_secret: ${{ secrets.TF_VAR_TOKEN_SECRET }}
+            TF_VAR_TRAEFIK_ENV: ${{ secrets.TF_VAR_TRAEFIK_ENV }}
+            TF_VAR_HOMELABV2_SECRET: ${{ secrets.TF_VAR_HOMELABV2_SECRET }}             
           run: terraform plan -input=false -no-color -out=tfplan && terraform show -no-color tfplan
     
         - name: Reformat Plan
@@ -94,7 +96,9 @@ jobs:
           if: steps.plan.outcome == 'success'
           env:
             TF_VAR_token_id: ${{ secrets.TF_VAR_TOKEN_ID }}
-            TF_VAR_token_secret: ${{ secrets.TF_VAR_TOKEN_SECRET }}      
+            TF_VAR_token_secret: ${{ secrets.TF_VAR_TOKEN_SECRET }}
+            TF_VAR_TRAEFIK_ENV: ${{ secrets.TF_VAR_TRAEFIK_ENV }}
+            TF_VAR_HOMELABV2_SECRET: ${{ secrets.TF_VAR_HOMELABV2_SECRET }}        
           run: terraform apply -auto-approve -input=false -no-color tfplan
 
 
