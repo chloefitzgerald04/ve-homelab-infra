@@ -43,12 +43,7 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
   automatic_reboot              = try(each.value.reboot_after_update, var.default_flatcar.reboot_after_update, null)
   automatic_reboot_severity     = try(each.value.automatic_reboot_severity, var.default_flatcar.automatic_reboot_severity, null)
 
-  startup_shutdown {
-    order = -1
-    startup_delay = -1
-    shutdown_timeout = -1
-  }
-  name                          = each.value.vm_name
+  name                          = each.key
   target_node                   = try(each.value.node, var.default_flatcar.node, null)
   #description                   = "data:application/vnd.coreos.ignition+json;charset=UTF-8;base64,${base64encode(data.ct_config.ignition_json[each.key].rendered)}"
 
@@ -106,7 +101,7 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
 data "ct_config" "ignition_json" {
   for_each = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
   content = templatefile(each.value.config_file, {
-    "vm_name"        = each.value.vm_name
+    "vm_name"        = each.key,
     "vm_count"       = local.vm_index[each.key],
     "vm_count_index" = local.vm_index[each.key],
     "share_password" = var.share_password,
