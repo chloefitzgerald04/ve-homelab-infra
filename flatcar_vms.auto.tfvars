@@ -31,7 +31,7 @@ default_flatcar = {
 
 flatcar_vms = {
      "flatcar-01" = {
-         "disabled" = false
+         "disabled" = true
          "config_file" = "butane_configs/1-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve3"
@@ -62,13 +62,13 @@ flatcar_vms = {
          }
          
      }
-     "flatcar-03" = {
-         "disabled" = true
+     "ve-traefik" = {
+         "disabled" = false
          "config_file" = "butane_configs/3-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve3"
          "vcpus" = 2
-         "memory" = 4096
+         "memory" = 2048
          "disk_size" = 32
          "disk_datastore" = "Ceph"
          "network" = {

@@ -37,27 +37,16 @@ storage:
           LOCKSMITHD_REBOOT_WINDOW_START=06:00
           LOCKSMITHD_REBOOT_WINDOW_LENGTH=1h          
       mode: 0420
-  directories:
-    - path: /mnt/media
-      mode: 0777
+    - path: /home/core/Traefik/.env
       overwrite: true
+      contents:
+        inline: |
+          ${indent(10, traefik_env)}
+
 
 
 systemd:
   units:
-    - name: mnt-media.mount
-      enabled: true
-      contents: |
-        [Unit]
-        Before=remote-fs.target
-        [Mount]
-        What=//10.0.10.210/temp
-        Where=/mnt/media
-        Options=username=temp,password=temptemp,forceuid,forcegid,uid=500,gid=500
-        Type=cifs
-        [Install]
-        WantedBy=remote-fs.target
-
 
     - name: first-boot.service
       enabled: true
@@ -70,9 +59,8 @@ systemd:
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/bash -c "if ! [ -d '/home/core/arr' ]; then git clone https://github.com/chloefitzgerald04/arr-stack-demo.git /home/core/arr; fi; sudo chown -R core:core /home/core/arr"
+        ExecStart=/bin/bash -c "git clone https://${homelabv2_secret}@github.com/chloefitzgerald04/homelabv2.git /home/core/temp && rsync -a /home/core/temp/services/Traefik/ /home/core/Traefik/ && rm -rf /home/core/temp"
         RemainAfterExit=yes
-
         [Install]
         WantedBy=multi-user.target
 
@@ -84,8 +72,8 @@ systemd:
         After=first-boot.service
         Requires=first-boot.service
         [Service]
-        ExecStart=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml up
-        ExecStop=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml down
+        ExecStart=/opt/bin/docker-compose -f /home/core/Traefik/docker-compose.yaml up
+        ExecStop=/opt/bin/docker-compose -f /home/core/Traefik/docker-compose.yaml down
         Restart=always
         RestartSec=5
         [Install]

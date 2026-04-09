@@ -5,7 +5,10 @@ variable "share_password" {
   default     = ""
 }
 
-
+variable "homelabv2_secret" {
+  sensitive   = true
+  default     = ""
+}
 variable "template_id" {
   description = ""
 }
@@ -14,4 +17,10 @@ variable "default_flatcar" {
 }
 variable "flatcar_vms" {
     default = {}
+}
+
+
+variable "traefik_env" {
+  sensitive  = true
+  default = ""
 }

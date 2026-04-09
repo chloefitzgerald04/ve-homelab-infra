@@ -105,6 +105,8 @@ data "ct_config" "ignition_json" {
     "vm_count"       = local.vm_index[each.key],
     "vm_count_index" = local.vm_index[each.key],
     "share_password" = var.share_password,
+    "homelabv2_secret"     = var.homelabv2_secret,
+    "traefik_env"      = var.traefik_env,
   })
   strict       = false
   pretty_print = true
