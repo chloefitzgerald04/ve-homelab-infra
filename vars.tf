@@ -60,3 +60,14 @@ variable "flatcar_vms" {
 variable "default_flatcar" {
     default = {}
 }
+
+
+variable "traefik_env" {
+  sensitive  = true
+  default = ""
+}
+
+variable "homelabv2_secret" {
+  sensitive   = true
+  default     = ""
+}
