@@ -71,3 +71,8 @@ variable "homelabv2_secret" {
   sensitive   = true
   default     = ""
 }
+
+variable "share_password" {
+  sensitive   = true
+  default     = ""
+}

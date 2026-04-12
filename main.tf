@@ -50,7 +50,8 @@ module "proxmox_vm_flatcar" {
   depends_on       = [module.proxmox_template]
   flatcar_vms      = var.flatcar_vms
   default_flatcar  = var.default_flatcar
-  traefik_env = var.traefik_env
+  traefik_env      = var.traefik_env
   homelabv2_secret = var.homelabv2_secret
+  share_password   = var.share_password
   template_id      = module.proxmox_template.out_template_id
 }

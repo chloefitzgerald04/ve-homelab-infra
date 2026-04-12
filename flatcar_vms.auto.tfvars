@@ -46,11 +46,11 @@ flatcar_vms = {
          }
          
      }
-     "flatcar-02" = {
-         "disabled" = true
+     "ve-arr-stack" = {
+         "disabled" = false
          "config_file" = "butane_configs/2-config.bu.tftpl"
          "start_on_boot" = true
-         "node" = "pve3"
+         "node" = "pve1"
          "vcpus" = 2
          "memory" = 4096
          "disk_size" = 32
@@ -63,7 +63,7 @@ flatcar_vms = {
          
      }
      "ve-traefik" = {
-         "disabled" = false
+         "disabled" = true
          "config_file" = "butane_configs/3-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve2"
