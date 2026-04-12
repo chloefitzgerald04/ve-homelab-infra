@@ -25,7 +25,7 @@ storage:
           [Match]
           Name=eth0
           [Network]
-          Address=10.0.10.${221 + vm_count_index}/23
+          Address=10.0.10.40/23
           Gateway=10.0.10.1
           DNS=10.0.10.1
 
@@ -51,9 +51,9 @@ systemd:
         [Unit]
         Before=remote-fs.target
         [Mount]
-        What=//10.0.10.210/temp
+        What=//10.0.10.210/media
         Where=/mnt/media
-        Options=username=temp,password=temptemp,forceuid,forcegid,uid=500,gid=500
+        Options=username=plex,password=${share_password},forceuid,forcegid,uid=1000,gid=1000
         Type=cifs
         [Install]
         WantedBy=remote-fs.target
@@ -70,9 +70,8 @@ systemd:
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/bash -c "if ! [ -d '/home/core/arr' ]; then git clone https://github.com/chloefitzgerald04/arr-stack-demo.git /home/core/arr; fi; sudo chown -R core:core /home/core/arr"
+        ExecStart=/bin/bash -c "git clone https://${homelabv2_secret}@github.com/chloefitzgerald04/homelabv2.git /home/core/temp && rsync -a /home/core/temp/services/arr/ /home/core/arr/ && rm -rf /home/core/temp && sudo chown -R 1000:1000 /home/core/arr"
         RemainAfterExit=yes
-
         [Install]
         WantedBy=multi-user.target
 
@@ -84,6 +83,8 @@ systemd:
         After=first-boot.service
         Requires=first-boot.service
         [Service]
+        ExecStartPre=/bin/sh -c 'mkdir -p /home/core/arr/radarr/config /home/core/arr/sonarr/config /home/core/arr/prowlarr/config /home/core/arr/qbittorrent/config /home/core/arr/overseerr/config /home/core/arr/rdtclient/config /home/core/arr/syncthing/config'
+        ExecStartPre=/bin/sh -c 'chown -R 1000:1000 /home/core/arr'
         ExecStart=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml up
         ExecStop=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml down
         Restart=always
