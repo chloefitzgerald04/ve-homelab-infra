@@ -17,6 +17,7 @@ default_flatcar = {
          "memory"                                               = 4096
          "reboot_after_update"                                  = "true"
          "automatic_reboot_severity"                            = "error"
+         "machine"                                             = "pc"
          "stop_on_destroy"                                      = true
          "start_on_boot"                                        = true
          "network" = {
@@ -25,30 +26,34 @@ default_flatcar = {
                 "vlan_id" = 0
          }
          "disk_size"                                            = 32
-         "disk_datastore"                                       = "Ceph"    
+         "disk_datastore"                                       = "Ceph"   
+         
+         "pci_passthrough"                                      = false 
 }
 
 
 flatcar_vms = {
-     "flatcar-01" = {
-         "disabled" = true
-         "config_file" = "butane_configs/1-config.bu.tftpl"
-         "start_on_boot" = true
-         "node" = "pve1"
-         "vcpus" = 2
-         "memory" = 4096
-         "disk_size" = 32
-         "disk_datastore" = "Ceph"
-         "network" = {
-            "model" = "virtio"
-            "bridge" = "vmbr2"
-            "vlan" = 0
-         }
-         
-     }
-     "ve-arr-stack" = {
+     "fc-plex" = {
          "disabled" = false
-         "config_file" = "butane_configs/2-config.bu.tftpl"
+         "config_file" = "butane_configs/plex-config.bu.tftpl"
+         "start_on_boot" = true
+         "node" = "pve3"
+         "vcpus" = 4
+         "memory" = 8192
+         "disk_size" = 32
+         "machine" = "q35"
+         "pci_passthrough" = true
+         "disk_datastore" = "Ceph"
+         "network" = {
+            "model" = "virtio"
+            "bridge" = "vmbr2"
+            "vlan" = 0
+         }
+         
+     }
+     "fc-arr-stack" = {
+         "disabled" = false
+         "config_file" = "butane_configs/arr-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve1"
          "vcpus" = 2
@@ -62,9 +67,9 @@ flatcar_vms = {
          }
          
      }
-     "ve-traefik" = {
-         "disabled" = true
-         "config_file" = "butane_configs/3-config.bu.tftpl"
+     "fc-traefik" = {
+         "disabled" = false
+         "config_file" = "butane_configs/traefik-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve2"
          "vcpus" = 2

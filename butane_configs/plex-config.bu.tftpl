@@ -25,7 +25,7 @@ storage:
           [Match]
           Name=eth0
           [Network]
-          Address=10.0.10.${221 + vm_count_index}/23
+          Address=10.0.10.224/23
           Gateway=10.0.10.1
           DNS=10.0.10.1
 
@@ -51,13 +51,12 @@ systemd:
         [Unit]
         Before=remote-fs.target
         [Mount]
-        What=//10.0.10.210/temp
+        What=//10.0.10.210/media
         Where=/mnt/media
-        Options=username=temp,password=temptemp,forceuid,forcegid,uid=500,gid=500
+        Options=username=plex,password=${share_password},forceuid,forcegid,uid=500,gid=500
         Type=cifs
         [Install]
         WantedBy=remote-fs.target
-
 
     - name: first-boot.service
       enabled: true
@@ -70,12 +69,12 @@ systemd:
 
         [Service]
         Type=oneshot
-        ExecStart=/bin/bash -c "if ! [ -d '/home/core/arr' ]; then git clone https://github.com/chloefitzgerald04/arr-stack-demo.git /home/core/arr; fi; sudo chown -R core:core /home/core/arr"
+        ExecStart=/bin/bash -c "git clone https://${homelabv2_secret}@github.com/chloefitzgerald04/homelabv2.git /home/core/temp && rsync -a /home/core/temp/services/docker/plex/ /home/core/docker/ && rm -rf /home/core/temp"
         RemainAfterExit=yes
-
         [Install]
         WantedBy=multi-user.target
-
+  
+  
     - name: docker-compose.service
       enabled: true
       contents: |
@@ -84,35 +83,11 @@ systemd:
         After=first-boot.service
         Requires=first-boot.service
         [Service]
-        ExecStart=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml up
-        ExecStop=/opt/bin/docker-compose -f /home/core/arr/docker-compose.yaml down
+        ExecStartPre=/bin/sh -c 'mkdir -p /home/core/docker/plex/config /home/core/docker/syncthing/config'
+        ExecStartPre=/bin/sh -c 'chown -R 500:500 /home/core/docker'
+        ExecStart=/opt/bin/docker-compose -f /home/core/docker/docker-compose.yaml up
+        ExecStop=/opt/bin/docker-compose -f /home/core/docker/docker-compose.yaml down
         Restart=always
         RestartSec=5
-        [Install]
-        WantedBy=multi-user.target
-
-
-    - name: zabbix-agent.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Zabbix Agent Docker Container
-        After=docker.service
-        Requires=docker.service
-
-        [Service]
-        ExecStart=/usr/bin/docker run \
-          --name zabbix-agent \
-          --rm \
-          --network host \
-          --user 0:0 \
-          -v /var/run/docker.sock:/var/run/docker.sock:ro \
-          -e ZBX_HOSTNAME="${vm_name}" \
-          -e ZBX_SERVER_HOST="10.0.10.208" \
-          zabbix/zabbix-agent2:latest
-        ExecStop=/usr/bin/docker stop zabbix-agent
-        Restart=always
-        RestartSec=5
-
         [Install]
         WantedBy=multi-user.target
