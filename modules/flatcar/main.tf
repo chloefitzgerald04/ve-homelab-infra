@@ -52,7 +52,7 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
   bios                          = "seabios" 
   os_type                       = "host"
   boot                          = try(each.value.boot_order, var.default_flatcar.boot_order, null)
-
+  machine                       = try(each.value.machine, var.default_flatcar.machine, null)  
   cpu   {
     cores         = try(each.value.cpu.vpus, var.default_flatcar.cpu.vpus, 2)
     type          = try(each.value.cpu.type, var.default_flatcar.cpu.type, "host")
@@ -94,6 +94,16 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
     link_down = try(each.value.network.link_down, each.value.network.link_down, null)
   }
 
+  dynamic "pci" {
+    for_each = try(each.value.pci_passthrough, false) == true ? [1] : []
+    content {
+      id = 0
+      #raw_id = "0000:00:02.0"
+      mapping_id = "quicksync"
+      mdev = "i915-GVTg_V5_4"
+      pcie = false
+    }
+  }
 }
 
 
