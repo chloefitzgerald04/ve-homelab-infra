@@ -24,3 +24,8 @@ variable "traefik_env" {
   sensitive  = true
   default = ""
 }
+
+variable "zabbix_env" {
+  sensitive  = true
+  default = ""
+}

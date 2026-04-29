@@ -91,3 +91,28 @@ systemd:
         RestartSec=5
         [Install]
         WantedBy=multi-user.target
+        
+    - name: zabbix-agent.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Zabbix Agent Docker Container
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        ExecStart=/usr/bin/docker run \
+          --name zabbix-agent \
+          --rm \
+          --network host \
+          --user 0:0 \
+          -v /var/run/docker.sock:/var/run/docker.sock:ro \
+          -e ZBX_HOSTNAME="${vm_name}" \
+          -e ZBX_SERVER_HOST="10.0.10.208" \
+          zabbix/zabbix-agent2:latest
+        ExecStop=/usr/bin/docker stop zabbix-agent
+        Restart=always
+        RestartSec=5
+
+        [Install]
+        WantedBy=multi-user.target

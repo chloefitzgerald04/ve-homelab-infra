@@ -17,9 +17,10 @@ default_flatcar = {
          "memory"                                               = 4096
          "reboot_after_update"                                  = "true"
          "automatic_reboot_severity"                            = "error"
-         "machine"                                             = "pc"
+         "machine"                                              = "pc"
          "stop_on_destroy"                                      = true
          "start_on_boot"                                        = true
+         "startup_delay"                                        = 180    
          "network" = {
                 "bridge" = "vmbr2"
                 "model" = "virtio"
@@ -75,6 +76,22 @@ flatcar_vms = {
          "vcpus" = 2
          "memory" = 2048
          "disk_size" = 32
+         "disk_datastore" = "Ceph"
+         "network" = {
+            "model" = "virtio"
+            "bridge" = "vmbr2"
+            "vlan" = 0
+         }
+         
+     }
+     "fc-monitoring" = {
+         "disabled" = false
+         "config_file" = "butane_configs/zabbix-config.bu.tftpl"
+         "start_on_boot" = true
+         "node" = "pve2"
+         "vcpus" = 2
+         "memory" = 4096
+         "disk_size" = 60
          "disk_datastore" = "Ceph"
          "network" = {
             "model" = "virtio"

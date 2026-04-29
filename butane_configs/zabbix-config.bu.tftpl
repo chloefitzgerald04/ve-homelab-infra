@@ -1,0 +1,82 @@
+version: 1.0.0
+variant: flatcar
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVSFwDNe6CRv1hqfQo+G3NzsNHoz2ndSfAUFBnbF4/0 eddsa-key-20250802
+storage:
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: "${vm_name}"
+
+    - path: /opt/bin/docker-compose
+      contents:
+        source: https://github.com/docker/compose/releases/download/v2.39.1/docker-compose-linux-x86_64
+        verification:
+          hash: sha256-a5ea28722d5da628b59226626f7d6c33c89a7ed19e39f750645925242044c9d2
+      mode: 0755
+
+    - path: /etc/systemd/network/static.network
+      contents:
+        inline: |
+          [Match]
+          Name=eth0
+          [Network]
+          Address=10.0.10.208/23
+          Gateway=10.0.10.1
+          DNS=10.0.10.1
+
+    - path: /etc/flatcar/update.conf
+      overwrite: true
+      contents:
+        inline: |
+          REBOOT_STRATEGY=reboot
+          LOCKSMITHD_REBOOT_WINDOW_START=06:00
+          LOCKSMITHD_REBOOT_WINDOW_LENGTH=1h          
+      mode: 0420
+    - path: /home/core/zabbix/.env
+      overwrite: true
+      contents:
+        inline: |
+          ${indent(10, zabbix_env)}
+
+
+
+systemd:
+  units:
+
+    - name: first-boot.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=first-boot.service
+
+        After=docker.service
+        Requires=docker.service
+
+        [Service]
+        Type=oneshot
+        ExecStart=/bin/bash -c "git clone https://${homelabv2_secret}@github.com/chloefitzgerald04/homelabv2.git /home/core/temp && rsync -a /home/core/temp/services/zabbix/ /home/core/zabbix/ && rm -rf /home/core/temp"
+        RemainAfterExit=yes
+        [Install]
+        WantedBy=multi-user.target
+
+    - name: docker-compose.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Minimalist docker-compose example
+        After=first-boot.service
+        Requires=first-boot.service
+        [Service]
+        ExecStartPre=/bin/sh -c 'mkdir -p /home/core/zabbix/zabbix-web /home/core/zabbix/zabbix-server /home/core/zabbix/zabbix-db /home/core/zabbix/grafana /home/core/zabbix/influx /home/core/zabbix/syncthing/config'
+        ExecStartPre=/bin/sh -c 'chown -R 500:500 /home/core/zabbix'
+        ExecStart=/opt/bin/docker-compose -f /home/core/zabbix/docker-compose.yaml up
+        ExecStop=/opt/bin/docker-compose -f /home/core/zabbix/docker-compose.yaml down
+        Restart=always
+        RestartSec=5
+        [Install]
+        WantedBy=multi-user.target
