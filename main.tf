@@ -51,6 +51,7 @@ module "proxmox_vm_flatcar" {
   flatcar_vms      = var.flatcar_vms
   default_flatcar  = var.default_flatcar
   traefik_env      = var.traefik_env
+  zabbix_env       = var.zabbix_env
   homelabv2_secret = var.homelabv2_secret
   share_password   = var.share_password
   template_id      = module.proxmox_template.out_template_id

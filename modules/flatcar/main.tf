@@ -59,6 +59,9 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
   }
   memory                        = try(each.value.memory, var.default_flatcar.memory, 4096)
   start_at_node_boot            = try(each.value.start_on_boot, var.default_flatcar.start_on_boot,true)
+  startup_shutdown {
+    startup_delay                  = try(each.value.startup_delay, var.default_flatcar.startup_delay, null)
+  }
   scsihw                        = "virtio-scsi-single"
 
  
@@ -117,6 +120,7 @@ data "ct_config" "ignition_json" {
     "share_password" = var.share_password,
     "homelabv2_secret"     = var.homelabv2_secret,
     "traefik_env"      = var.traefik_env,
+    "zabbix_env"       = var.zabbix_env
   })
   strict       = false
   pretty_print = true
@@ -128,6 +132,7 @@ resource "null_resource" "node_replace_trigger" {
   triggers = {
     "ignition" = data.ct_config.ignition_json[each.key].rendered
   }
+  # Issues with provider so keeping triggers as ignored for now
   lifecycle {
     ignore_changes = [triggers]
   }
