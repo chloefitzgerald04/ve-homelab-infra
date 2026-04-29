@@ -15,11 +15,17 @@ terraform {
     }
     bpg = {
       source = "bpg/proxmox"
-      version = "0.98.1"
+      version = "0.104.0"
     }
   }
 }
 
+module "proxmox_storage" {
+  source           = "./modules/storage"
+  default_cifs     = var.default_cifs
+  custom_cifs      = var.custom_cifs
+  cifs_password    = var.cifs_password
+}
 
 module "proxmox_import" {
   source           = "./modules/imports"
