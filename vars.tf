@@ -61,6 +61,17 @@ variable "default_flatcar" {
     default = {}
 }
 
+variable "default_cifs" {
+    default = {}
+}
+variable "custom_cifs" {
+    default = {}
+}
+variable "cifs_password" {
+  sensitive   = true
+  default     = ""
+}
+
 
 variable "traefik_env" {
   sensitive  = true
