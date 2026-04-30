@@ -75,7 +75,7 @@ custom_templates = {
          # }
          "import" = {
             "0" = {
-               "name" = "flatcar-proxmox2.qcow2"
+               "name" = "flatcar-proxmox.qcow2"
                "size" = "20"
                "datastore" = "Ceph"
                "interface" = "scsi0"

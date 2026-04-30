@@ -9,7 +9,7 @@ terraform {
 
 
 ### Only present if there is an "import" variable in the vm config in tfvars file
-resource "proxmox_virtual_environment_download_file" "imported_disk" {
+resource "proxmox_download_file" "imported_disk" {
     provider                  = bpg
     for_each                  = var.import_disks
     content_type              = "import"
