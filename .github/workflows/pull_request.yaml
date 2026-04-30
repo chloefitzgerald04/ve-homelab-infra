@@ -74,7 +74,8 @@ jobs:
             TF_VAR_token_secret: ${{ secrets.TF_VAR_TOKEN_SECRET }} 
             TF_VAR_traefik_env: ${{ secrets.TF_VAR_TRAEFIK_ENV }}
             TF_VAR_homelabv2_secret: ${{ secrets.TF_VAR_HOMELABV2_SECRET }}  
-            TF_VAR_share_password: ${{ secrets.TF_VAR_share_password }}       
+            TF_VAR_share_password: ${{ secrets.TF_VAR_share_password }}
+            TF_VAR_cifs_password: ${{ secrets.TF_VAR_cifs_password }}       
           run: terraform plan -input=false -no-color -out=tfplan && terraform show -no-color tfplan
           
         - name: Run Checkov action
