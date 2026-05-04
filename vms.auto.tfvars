@@ -49,6 +49,7 @@ default_vm = {
              "iso"                                              = "NAS:iso/archlinux-2024.06.01-x86_64.iso" 
              "interface"                                        = "ide0"
          }
+         "agent"                                                = false
          "network_devices" = {
             "0" = {
                 "bridge" = "vmbr2"
@@ -61,6 +62,43 @@ default_vm = {
 }
 
 iso_vms= {
+     "VE-PBS-01" = {
+         "name" = "ve-pbs-01"
+         "node" = "pve3"
+         "agent" = true
+         "boot_order"                                           = ["scsi0", "ide2", "net0"]
+         "cpu" = {
+            "vcpus" = 2
+         }
+         "memory" = {
+            "dedicated" = 4096
+         }
+         "bios" = "ovmf"
+         "efi-disk" = { 
+            "datastore_id" = "Ceph"
+         }
+         "tpm" = {
+            "enabled" = true
+         }
+         "cdrom" = {
+             "iso" = "ve-nas-01:iso/proxmox-backup-server_4.2-1unattend.iso" 
+             "interface" = "ide0"
+         }
+         "network_devices" = {
+            "0" = {
+               "model" = "virtio"
+               "mac_address" = "bc:24:11:d3:37:56"
+            }
+
+         }
+         "scsi" = {
+             "0" = {
+                 "size"                                          = 32
+                 "datastore_id"                                  = "Ceph"
+                 "discard"                                       = "on"
+             }
+         }
+     }
      "VM1" = {
          "disabled" = true
          "name" = "01"

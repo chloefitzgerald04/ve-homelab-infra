@@ -25,7 +25,10 @@ resource "proxmox_virtual_environment_vm" "iso_vms" {
     
     boot_order                = try(each.value.bootorder, var.default_vm.bootorder, null)
     on_boot                   = try(each.value.on_boot, var.default_vm.on_boot, null)
-
+    agent {
+        # read 'Qemu guest agent' section, change to true only when ready
+        enabled = try(each.value.agent, var.default_vm.agent, null)
+    }
     dynamic "clone" {
         for_each = try(each.value.clone, null) != null && try(each.value.pxe, null) != true? [1] : []
         content {

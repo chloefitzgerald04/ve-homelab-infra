@@ -62,3 +62,12 @@ module "proxmox_vm_flatcar" {
   share_password   = var.share_password
   template_id      = module.proxmox_template.out_template_id
 }
+
+module "ansible" {
+  source           = "./modules/ansible"
+  depends_on       = [module.proxmox_vm, module.proxmox_vm_flatcar]
+  bpg_ips          = module.proxmox_vm.out_vm_ip
+  iso_vms          = var.iso_vms
+  
+  
+  }
