@@ -36,7 +36,7 @@ default_flatcar = {
 flatcar_vms = {
      "fc-plex" = {
          "disabled" = false
-         "config_file" = "butane_configs/plex-config.bu.tftpl"
+         "config_file" = "configs/butane/plex-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve3"
          "vcpus" = 4
@@ -54,7 +54,7 @@ flatcar_vms = {
      }
      "fc-arr-stack" = {
          "disabled" = false
-         "config_file" = "butane_configs/arr-config.bu.tftpl"
+         "config_file" = "configs/butane/arr-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve1"
          "vcpus" = 2
@@ -70,7 +70,7 @@ flatcar_vms = {
      }
      "fc-traefik" = {
          "disabled" = false
-         "config_file" = "butane_configs/traefik-config.bu.tftpl"
+         "config_file" = "configs/butane/traefik-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve2"
          "vcpus" = 2
@@ -86,7 +86,7 @@ flatcar_vms = {
      }
      "fc-monitoring" = {
          "disabled" = false
-         "config_file" = "butane_configs/zabbix-config.bu.tftpl"
+         "config_file" = "configs/butane/zabbix-config.bu.tftpl"
          "start_on_boot" = true
          "node" = "pve2"
          "vcpus" = 2

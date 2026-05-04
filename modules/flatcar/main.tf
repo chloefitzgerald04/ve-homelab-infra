@@ -50,7 +50,8 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
   agent                         = 1
   define_connection_info        = false 
   bios                          = "seabios" 
-  os_type                       = "host"
+  os_type                       = "cloud-init"
+  ipconfig0   = "ip=dhcp"
   boot                          = try(each.value.boot_order, var.default_flatcar.boot_order, null)
   machine                       = try(each.value.machine, var.default_flatcar.machine, null)  
   cpu   {
