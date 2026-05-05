@@ -6,3 +6,7 @@ output "out_vm_ip" {
     }
   }
 }
+
+output "iso_vms" {
+    value = proxmox_virtual_environment_vm.iso_vms
+}

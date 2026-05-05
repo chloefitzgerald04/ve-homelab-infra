@@ -62,6 +62,12 @@ module "proxmox_vm_flatcar" {
   share_password   = var.share_password
   template_id      = module.proxmox_template.out_template_id
 }
+module "high-availability" {
+  depends_on  = [module.proxmox_vm_flatcar, module.proxmox_vm]
+  source      = "./modules/high-availability"
+  flatcar_vms = module.proxmox_vm_flatcar.flatcar_vms
+  iso_vms     = module.proxmox_vm.iso_vms
+}
 
 module "ansible" {
   source           = "./modules/ansible"
@@ -71,3 +77,4 @@ module "ansible" {
   
   
   }
+
