@@ -28,7 +28,7 @@ default_flatcar = {
          }
          "disk_size"                                            = 32
          "disk_datastore"                                       = "Ceph"   
-         
+         "hastate"                                              = "started"
          "pci_passthrough"                                      = false 
 }
 
@@ -45,6 +45,7 @@ flatcar_vms = {
          "machine" = "q35"
          "pci_passthrough" = true
          "disk_datastore" = "Ceph"
+         "hastate" = "ignored"
          "network" = {
             "model" = "virtio"
             "bridge" = "vmbr2"

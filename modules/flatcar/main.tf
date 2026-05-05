@@ -20,7 +20,7 @@ resource "proxmox_cloud_init_disk" "ci" {
   for_each = {for k, v in var.flatcar_vms : k => v if !lookup(v, "disabled", false)}
   name      = "cf-pve-cl-02-flatcar-${local.vm_index[each.key] + 1}"
   pve_node  = each.value.node
-  storage   = "ve-nas-01"
+  storage   = "cephfs"
 
   meta_data = yamlencode({
     instance_id    = sha1("cf-pve-cl-02-flatcar-${local.vm_index[each.key] + 1}")
@@ -46,7 +46,8 @@ resource "proxmox_vm_qemu" "flatcar_vm" {
   name                          = each.key
   target_node                   = try(each.value.node, var.default_flatcar.node, null)
   #description                   = "data:application/vnd.coreos.ignition+json;charset=UTF-8;base64,${base64encode(data.ct_config.ignition_json[each.key].rendered)}"
-
+  hastate                       = try(each.value.hastate, var.default_flatcar.hastate, null)
+  
   agent                         = 1
   define_connection_info        = false 
   bios                          = "seabios" 
