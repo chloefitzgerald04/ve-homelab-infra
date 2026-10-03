@@ -101,4 +101,19 @@ flatcar_vms = {
          }
          
      }
+     "fc-web-immich" = {
+         "disabled" = false
+         "config_file" = "configs/butane/immich-config.bu.tftpl"
+         "start_on_boot" = true
+         "node" = "pve3"
+         "vcpus" = 2
+         "memory" = 6144
+         "disk_size" = 64
+         "disk_datastore" = "Ceph"
+         "network" = {
+            "model" = "virtio"
+            "bridge" = "vmbr2"
+            "vlan" = 0
+         }
+     }
 }
